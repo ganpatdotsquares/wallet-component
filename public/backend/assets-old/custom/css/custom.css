@@ -1,0 +1,73 @@
+div.min-vh .card{
+    height: 150px;
+}
+a.nav-link.active
+{
+    color:white !important;
+}
+.rating {
+    display: inline-block;
+    direction: rtl;
+    font-size: 24px;
+    color: #ffcc00 !important;
+}
+
+.dashboard-card{
+    min-height: 160px;
+}
+.error{
+    color: red;
+}
+.col-md-custom{
+    flex: 0 0 31% !important;
+    /* Custom width between 25% and 33.33% */
+    max-width: 31%;
+}
+.mylogo{
+    width: 100%;
+    height: auto;
+    position: relative;
+    max-height: 50px;
+}
+.sidebar-nav ul li a.active {
+     font-weight: 400 !important;
+}
+.has-arrow.waves-effect.waves-dark.active, .has-arrow.waves-effect.waves-dark.active i {
+	color: #585e6d;
+}
+.verified-text {
+    color: #36cc36;
+    font-weight: 500;
+}
+
+.not-verified-text {
+    color: red;
+    font-weight: 500;
+}
+.warning-text {
+    color: #fec107;
+    font-weight: 500;
+}
+
+.loader__label {
+    color: #03a9f3 !important; 
+    font-size: 16px; 
+    margin: 10px 0; 
+    color: #03a9f3 !important; 
+}
+
+.loader__figure {
+    background-color: #03a9f3 !important; 
+    width: 50px;
+    height: 50px; 
+    border-radius: 50%; 
+    border: 0 solid #03a9f3 !important; 
+}
+.portfolio-item{
+    padding: 5px;
+    width:170px;
+}
+
+td a {
+    color: #3333ff
+}

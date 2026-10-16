@@ -1,0 +1,175 @@
+.error {
+    color: red !important;
+
+}
+.field-box input,
+.field-box select ,.field-box textarea {
+    color: black !important;         
+    border: 1px solid #ccc;
+}
+.is-invalid {
+    color: black
+}
+.red{
+    color:red;
+}
+.star-rating {
+  /*  direction: ltr;*/
+    /* Left to right */
+    display: inline-block;
+}
+
+.star {
+    font-size: 20px;
+    /* Size of stars */
+    color: #ddd;
+    /* Default star color (empty) */
+    cursor: pointer;
+}
+
+.star.filled {
+    color: #f39c12;
+    /* Filled star color (yellow) */
+}
+.show-rating {
+    display: inline-block;
+    /*direction: rtl;
+    */
+    font-size: 24px;
+    color: #ffcc00 !important;
+   
+}
+.show-rating .far{
+    font-family: "Font Awesome 6 Free";
+    font-weight: 400;
+}
+.disabledbtn {
+    opacity: 0.5; /* Optional: make it look disabled */
+    pointer-events: none; /* Prevent click events */
+}
+.small-heading {
+    font-size: 14px; /* Adjust size as needed */
+    font-weight: bold; /* Make it bold if desired */
+    display: block; /* Ensure it behaves like a block element */
+    margin-bottom: 4px; /* Space below each heading */
+}
+
+.mb-3 {
+    margin-bottom: 1rem; /* Adjust spacing between sections */
+}
+.custom-check-radio {
+    position: relative;
+    margin: 10px 15px;
+}
+
+.custom-check-radio input[type="radio"] {
+    display: none; /* Hide the default radio button */
+}
+
+.custom-check-radio label {
+    cursor: pointer;
+    padding-left: 30px; /* Space for the custom radio */
+    position: relative;
+    font-size: 16px; /* Adjust as necessary */
+}
+
+/* Custom radio button */
+.custom-check-radio label::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 20px; /* Size of the radio */
+    height: 20px; /* Size of the radio */
+    border: 1px solid #6AE17F; /* Border color */
+    border-radius: 50%; /* Circular shape */
+    background-color: white; /* Background color */
+    transition: background-color 0.2s, border-color 0.2s;
+}
+
+/* Checked state */
+.custom-check-radio input[type="radio"]:checked + label::before {
+    background-color: #6AE17F; /* Background color when checked */
+    border-color: #6AE17F; /* Border color when checked */
+}
+
+/* Red dot appearing next to the label */
+.custom-check-radio input[type="radio"]:checked + label::after {
+    content: '';
+    position: absolute;
+    left: 5px; /* Positioning next to the text */
+    top: 50%;
+    transform: translateY(-50%);
+    width: 10px; /* Inner dot size */
+    height: 10px; /* Inner dot size */
+    background-color: rgb(255, 255, 255); /* Inner dot color */
+    border-radius: 50%; /* Circular shape */
+}
+.view-detail-btn{
+    min-width: 140px;
+    height: 40px !important;
+    line-height: 40px !important;
+}
+.view-detail-btn:hover, .view-detail-btn:focus {
+    background: #1f72ea;
+    color: #fff;
+}
+.wallet-sec {
+    padding: 20px;
+    background-color: #ffffff; /* Light background for contrast */
+    border-radius: 5px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1); /* Add shadow for depth */
+}
+
+.transaction-table {
+    width: 100%;
+    border-collapse: collapse; /* Keep for spacing */
+    font-family: 'Arial', sans-serif; /* Modern font */
+}
+
+.transaction-table th,
+.transaction-table td {
+    padding: 12px;
+    text-align: left;
+    border: none; /* Remove column lines */
+}
+
+.transaction-table th {
+    background-color: #007bff; /* Header background color */
+    color: white; /* White text color for header */
+    font-weight: bold;
+}
+
+.transaction-table tr {
+    border-bottom: 1px solid #ddd; /* Line between rows */
+}
+
+.transaction-table tr:hover {
+    background-color: #e7f1ff; /* Lighter hover effect */
+}
+
+.transaction-table tr:nth-child(even) {
+    background-color: #f9f9f9; /* Zebra striping effect */
+}
+
+.transaction-table td {
+    color: #333; /* Darker text color for rows */
+    font-size: 14px; /* Slightly larger text */
+}
+
+.transaction-table tfoot td {
+    font-weight: bold; /* Bold text for totals */
+    background-color: #f1f1f1; /* Light background for footer */
+}
+
+.text-success {
+    color: #28a745; /* Green for credits */
+}
+
+.text-danger {
+    color: #dc3545; /* Red for debits */
+}
+
+
+

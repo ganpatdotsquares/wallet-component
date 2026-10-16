@@ -1,0 +1,50 @@
+﻿<!DOCTYPE html>
+<html lang="en-US">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!--<link rel="stylesheet" type="text/css" href="https://localhost:7121/swagger/swagger-ui.css">-->
+    <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/swagger-ui/5.17.14/swagger-ui.min.css">
+    <style>
+
+        html {
+            box-sizing: border-box;
+            overflow-y: scroll;
+        }
+
+        *,
+        *::before,
+        *::after {
+            box-sizing: inherit;
+        }
+
+        body {
+            margin: 0;
+            background: #fafafa;
+        }
+
+    </style>
+</head>
+<body>
+    <div id="swagger-ui"></div>
+    <!--<script src="https://localhost:7121/swagger/swagger-ui-bundle.js"></script>
+    <script src="https://localhost:7121/swagger/swagger-ui-standalone-preset.js"></script>-->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/swagger-ui/5.17.14/swagger-ui-bundle.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/swagger-ui/5.17.14/swagger-ui-standalone-preset.min.js"></script>
+    <!--url: "https://localhost:7121/JSONData/data.json"-->
+    <script type="text/javascript">
+        function loadSwaggerUi() {
+            SwaggerUIBundle({
+                // Replace the URL with your actual JSON data URL
+                url: "/swagger/data.json", // Adjust this path to the correct URL or file path
+                dom_id: '#swagger-ui',
+                presets: [
+                    SwaggerUIBundle.presets.apis,
+                    SwaggerUIBundle.SwaggerUIStandalonePreset
+                ]
+            });
+        }
+        window.onload = loadSwaggerUi;
+    </script>
+</body>
+</html>

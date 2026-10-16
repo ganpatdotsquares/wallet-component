@@ -1,0 +1,121 @@
+.owl-theme .owl-controls {
+	text-align: center;
+	-webkit-tap-highlight-color: transparent
+}
+.owl-nav {
+	top: 50%;
+  transform: translateY(-50%);
+  -webkit-transform: translateY(-50%);
+  width:100%;
+  left:0;
+  right:0;
+  position:absolute;
+}
+.owl-theme .owl-controls .owl-nav [class*=owl-] {
+	margin: 0;
+	display: inline-block;
+	cursor: pointer;
+}
+.owl-theme .owl-controls .owl-nav [class*=owl-]:hover {
+	background-color: none;
+}
+.owl-prev {
+	background-position: center center;
+	top: 50%;
+	transform: translateY(-50%);
+	-webkit-transform: translateY(-50%);
+	position: absolute;
+	left: -35px;
+}
+.owl-prev:after {
+	content: "\f104";
+	display: inline-block;
+	text-align: center;
+	font-family: 'FontAwesome';
+	color: #fff;
+	font-size: 45px;
+}
+.owl-next {
+	background-position: center center;
+	top: 50%;
+	transform: translateY(-50%);
+	-webkit-transform: translateY(-50%);
+	position: absolute;
+	right: -35px;
+}
+.owl-next:after {
+	content: "\f105";
+	display: inline-block;
+	text-align: center;
+	font-family: 'FontAwesome';
+	color: #fff;
+	font-size: 45px;
+}
+.owl-prev:hover:after {
+	color: #f5821f;
+}
+.owl-next:hover:after {
+	color: #f5821f;
+}
+/*.owl-theme .owl-controls .owl-nav [class*=owl-]:hover {
+	background: #869791;
+	color: #fff;
+	text-decoration: none
+}*/
+.owl-theme .owl-controls .owl-nav .disabled {
+	opacity: .5;
+	cursor: default
+}
+.owl-theme .owl-dots .owl-dot {
+	display: inline-block;
+	zoom: 1;
+*display:inline
+}
+.owl-theme .owl-dots .owl-dot span {
+	width: 13px;
+	height: 13px;
+	margin: 5px 4px;
+	background: #fff;
+	display: block;
+	-webkit-backface-visibility: visible;
+	-webkit-transition: opacity 200ms ease;
+	-moz-transition: opacity 200ms ease;
+	-ms-transition: opacity 200ms ease;
+	-o-transition: opacity 200ms ease;
+	transition: opacity 200ms ease;
+	-webkit-border-radius: 30px;
+	-moz-border-radius: 30px;
+	border-radius: 30px
+}
+.owl-theme .owl-dots .owl-dot.active span, .owl-theme .owl-dots .owl-dot:hover span {
+	background: #ffbf8c;
+}
+.owl-dots {
+	left: 0;
+	margin: 0;
+	position: absolute;
+	right: 0;
+	bottom: -35px;
+}
+/*--homebanner--*/
+#homebanner .owl-prev{
+	left:40px;
+}
+#homebanner .owl-next{
+	right:40px;
+}
+#homebanner .owl-prev:after, #homebanner .owl-next:after{
+	color:#818181;
+	font-size:70px;
+}
+#homebanner .owl-prev:hover:after, #homebanner .owl-next:hover:after{
+	color:#49d376;
+}
+@media screen and (max-width: 679px) {
+.owl-prev{
+	left:25px;
+}
+.owl-next{
+	right:25px;
+}
+}

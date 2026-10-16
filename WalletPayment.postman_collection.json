@@ -1,0 +1,342 @@
+{
+  "info": {
+    "name": "WalletPayment API",
+    "_postman_id": "f3b1f1a0-6c2e-4a7a-9e1a-walletpayment0001",
+    "description": "API collection for the WalletPayment Laravel project (routes/api.php). Base auth uses Laravel Sanctum Bearer tokens. The `login` and `otp-verification` requests auto-save the returned token into the `access_token` collection variable via a test script.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "auth": {
+    "type": "bearer",
+    "bearer": [
+      { "key": "token", "value": "{{access_token}}", "type": "string" }
+    ]
+  },
+  "variable": [
+    { "key": "base_url", "value": "http://localhost:8000/api", "type": "string" },
+    { "key": "access_token", "value": "", "type": "string" },
+    { "key": "user_id", "value": "", "type": "string" }
+  ],
+  "item": [
+    {
+      "name": "Auth",
+      "item": [
+        {
+          "name": "Register",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Accept", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "options": { "raw": { "language": "json" } },
+              "raw": "{\n  \"first_name\": \"John\",\n  \"last_name\": \"Doe\",\n  \"email\": \"john.doe@example.com\",\n  \"password\": \"Password@123\",\n  \"confirm_password\": \"Password@123\",\n  \"phone_number\": \"9876543210\",\n  \"dob\": \"1995-05-10\",\n  \"gender\": \"male\",\n  \"fcm_token\": \"\"\n}"
+            },
+            "url": { "raw": "{{base_url}}/auth/register", "host": ["{{base_url}}"], "path": ["auth", "register"] }
+          }
+        },
+        {
+          "name": "Login",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "try {",
+                  "    const res = pm.response.json();",
+                  "    if (res && res.data && res.data.access_token) {",
+                  "        pm.collectionVariables.set('access_token', res.data.access_token);",
+                  "    }",
+                  "    if (res && res.data && res.data.id) {",
+                  "        pm.collectionVariables.set('user_id', res.data.id);",
+                  "    }",
+                  "} catch (e) {}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Accept", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "options": { "raw": { "language": "json" } },
+              "raw": "{\n  \"email\": \"john.doe@example.com\",\n  \"password\": \"Password@123\",\n  \"fcm_token\": \"\"\n}"
+            },
+            "url": { "raw": "{{base_url}}/auth/login", "host": ["{{base_url}}"], "path": ["auth", "login"] }
+          }
+        },
+        {
+          "name": "Delete (unimplemented route)",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Accept", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "options": { "raw": { "language": "json" } },
+              "raw": "{\n  \"email\": \"john.doe@example.com\"\n}"
+            },
+            "url": { "raw": "{{base_url}}/auth/delete", "host": ["{{base_url}}"], "path": ["auth", "delete"] },
+            "description": "NOTE: AuthController::delete() is not implemented in the current codebase. This route will error until it is added."
+          }
+        },
+        {
+          "name": "OTP Verification",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "try {",
+                  "    const res = pm.response.json();",
+                  "    if (res && res.data && res.data.accessToken) {",
+                  "        pm.collectionVariables.set('access_token', res.data.accessToken);",
+                  "    }",
+                  "} catch (e) {}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Accept", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "options": { "raw": { "language": "json" } },
+              "raw": "{\n  \"email\": \"john.doe@example.com\",\n  \"otp\": 1234\n}"
+            },
+            "url": { "raw": "{{base_url}}/auth/otp-verification", "host": ["{{base_url}}"], "path": ["auth", "otp-verification"] }
+          }
+        },
+        {
+          "name": "Resend OTP Verification",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Accept", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "options": { "raw": { "language": "json" } },
+              "raw": "{\n  \"user_id\": \"{{user_id}}\"\n}"
+            },
+            "url": { "raw": "{{base_url}}/auth/otp-verification-resend", "host": ["{{base_url}}"], "path": ["auth", "otp-verification-resend"] }
+          }
+        },
+        {
+          "name": "Forgot Password",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Accept", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "options": { "raw": { "language": "json" } },
+              "raw": "{\n  \"email\": \"john.doe@example.com\"\n}"
+            },
+            "url": { "raw": "{{base_url}}/auth/forgot-password", "host": ["{{base_url}}"], "path": ["auth", "forgot-password"] }
+          }
+        },
+        {
+          "name": "Forgot Password OTP",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Accept", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "options": { "raw": { "language": "json" } },
+              "raw": "{\n  \"user_id\": \"{{user_id}}\",\n  \"otp\": 1234\n}"
+            },
+            "url": { "raw": "{{base_url}}/auth/forgot-password-otp", "host": ["{{base_url}}"], "path": ["auth", "forgot-password-otp"] }
+          }
+        },
+        {
+          "name": "Reset Password",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Accept", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "options": { "raw": { "language": "json" } },
+              "raw": "{\n  \"user_id\": \"{{user_id}}\",\n  \"password\": \"NewPass@123\",\n  \"c_password\": \"NewPass@123\"\n}"
+            },
+            "url": { "raw": "{{base_url}}/auth/reset-password", "host": ["{{base_url}}"], "path": ["auth", "reset-password"] }
+          }
+        },
+        {
+          "name": "Logout",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Accept", "value": "application/json" }],
+            "url": { "raw": "{{base_url}}/logout", "host": ["{{base_url}}"], "path": ["logout"] },
+            "description": "Requires Bearer token (api.authtoken middleware)."
+          }
+        }
+      ]
+    },
+    {
+      "name": "User",
+      "item": [
+        {
+          "name": "My Profile",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Accept", "value": "application/json" }],
+            "url": { "raw": "{{base_url}}/my-profile", "host": ["{{base_url}}"], "path": ["my-profile"] }
+          }
+        },
+        {
+          "name": "Update Profile",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Accept", "value": "application/json" }],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                { "key": "first_name", "value": "John", "type": "text" },
+                { "key": "last_name", "value": "Doe", "type": "text" },
+                { "key": "phone_number", "value": "9876543210", "type": "text" },
+                { "key": "dob", "value": "1995-05-10", "type": "text" },
+                { "key": "gender", "value": "male", "type": "text" },
+                { "key": "profile_image", "type": "file", "src": [] }
+              ]
+            },
+            "url": { "raw": "{{base_url}}/update-profile", "host": ["{{base_url}}"], "path": ["update-profile"] }
+          }
+        },
+        {
+          "name": "Change Password",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Accept", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "options": { "raw": { "language": "json" } },
+              "raw": "{\n  \"current_password\": \"Password@123\",\n  \"password\": \"NewPass@123\",\n  \"c_password\": \"NewPass@123\"\n}"
+            },
+            "url": { "raw": "{{base_url}}/change-password", "host": ["{{base_url}}"], "path": ["change-password"] }
+          }
+        },
+        {
+          "name": "Delete Account",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Accept", "value": "application/json" }],
+            "url": { "raw": "{{base_url}}/delete-account", "host": ["{{base_url}}"], "path": ["delete-account"] }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Pages",
+      "item": [
+        {
+          "name": "CMS Page by Slug",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Accept", "value": "application/json" }],
+            "url": {
+              "raw": "{{base_url}}/page/:slug",
+              "host": ["{{base_url}}"],
+              "path": ["page", ":slug"],
+              "variable": [{ "key": "slug", "value": "privacy-policy" }]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Stripe",
+      "item": [
+        {
+          "name": "Connect Stripe",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Accept", "value": "application/json" }],
+            "url": { "raw": "{{base_url}}/connect-stripe", "host": ["{{base_url}}"], "path": ["connect-stripe"] }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Wallet",
+      "item": [
+        {
+          "name": "Deposit Initiate",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Accept", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "options": { "raw": { "language": "json" } },
+              "raw": "{\n  \"amount\": 50\n}"
+            },
+            "url": { "raw": "{{base_url}}/wallet/deposit/initiate", "host": ["{{base_url}}"], "path": ["wallet", "deposit", "initiate"] }
+          }
+        },
+        {
+          "name": "Deposit Confirm",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Accept", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "options": { "raw": { "language": "json" } },
+              "raw": "{\n  \"payment_intent_id\": \"pi_xxx_from_deposit_initiate\"\n}"
+            },
+            "url": { "raw": "{{base_url}}/wallet/deposit/confirm", "host": ["{{base_url}}"], "path": ["wallet", "deposit", "confirm"] }
+          }
+        },
+        {
+          "name": "Get Balance",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Accept", "value": "application/json" }],
+            "url": { "raw": "{{base_url}}/wallet/balance", "host": ["{{base_url}}"], "path": ["wallet", "balance"] }
+          }
+        },
+        {
+          "name": "Withdraw Request",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Accept", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "options": { "raw": { "language": "json" } },
+              "raw": "{\n  \"amount\": 20,\n  \"method\": \"bank\",\n  \"method_details\": {\n    \"account_number\": \"123456789012\",\n    \"ifsc\": \"HDFC0001234\",\n    \"account_holder_name\": \"John Doe\",\n    \"bank_name\": \"HDFC Bank\"\n  }\n}"
+            },
+            "url": { "raw": "{{base_url}}/wallet/withdraw-request", "host": ["{{base_url}}"], "path": ["wallet", "withdraw-request"] }
+          }
+        },
+        {
+          "name": "Withdraw Request Cancel",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Accept", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "" },
+            "url": { "raw": "{{base_url}}/wallet/withdraw-request-cancel", "host": ["{{base_url}}"], "path": ["wallet", "withdraw-request-cancel"] }
+          }
+        },
+        {
+          "name": "Send Money (unimplemented route)",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Accept", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "options": { "raw": { "language": "json" } },
+              "raw": "{\n  \"recipient_email\": \"jane.doe@example.com\",\n  \"amount\": 10\n}"
+            },
+            "url": { "raw": "{{base_url}}/wallet/send", "host": ["{{base_url}}"], "path": ["wallet", "send"] },
+            "description": "NOTE: WalletController::sendMoney() is not implemented in the current codebase. This route will error (missing method) until it is added."
+          }
+        },
+        {
+          "name": "Transaction History",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Accept", "value": "application/json" }],
+            "url": { "raw": "{{base_url}}/wallet/transactions", "host": ["{{base_url}}"], "path": ["wallet", "transactions"] }
+          }
+        }
+      ]
+    }
+  ]
+}
