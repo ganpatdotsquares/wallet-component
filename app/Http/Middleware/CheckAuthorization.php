@@ -32,10 +32,8 @@ class CheckAuthorization
             'headers' => $request->headers->all(),
             'params' => $request->all()  // This will log all input parameters (both query and body)
         ]);
-        $authInformation = apache_request_headers();
-
         // Check if Authorization header exists and is not empty
-        $authorization = $authInformation['Authorization'] ?? null;
+        $authorization = $request->header('Authorization');
 
         if (!$authorization) {
             return $this->sendError($this->messageDefault('You are not authorized to access.'), '', '401');

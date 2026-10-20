@@ -29,10 +29,18 @@ class WalletWithdrawRequest extends FormRequest
         return [
             'amount' => ['required', 'numeric', 'min:1'],
             'method' => ['required', 'in:bank'],
-            'method_details.account_number' => ['required', 'string', 'min:9', 'max:18'],
-            'method_details.ifsc' => ['required', 'string', 'size:11'],
+            'method_details.account_number' => ['required', 'regex:/^[0-9]{9,18}$/'],
+            'method_details.ifsc' => ['required', 'regex:/^[A-Z]{4}0[A-Z0-9]{6}$/'],
             'method_details.account_holder_name' => ['required', 'string'],
             'method_details.bank_name' => ['required', 'string'],
+        ];
+    }
+
+    public function messages(): array
+    {
+        return [
+            'method_details.account_number.regex' => 'Account number must contain only digits (9 to 18 digits).',
+            'method_details.ifsc.regex' => 'IFSC code must be a valid 11-character code (e.g. ABCD0123456).',
         ];
     }
 

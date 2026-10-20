@@ -103,7 +103,7 @@ class WalletController extends Controller
                 'user_id' => $user->id,
                 'type' => 'deposit',
                 'amount' => $amount,
-                'status' => 'succeeded',
+                'status' => 'completed',
                 'transaction_id' => $paymentIntent->id,
                 'description' => 'Wallet deposit via Stripe',
             ]);
@@ -203,25 +203,25 @@ class WalletController extends Controller
         $user = auth('sanctum')->user();
         if (!$user) return $this->sendError('User not found', '', 401);
 
+        $withdraw = WithdrawRequest::where('user_id', $user->id)
+                        ->where('status', 'pending')
+                        ->latest()
+                        ->first(); // Cancel any previous pending requests
+
+        if (!$withdraw) {
+            return $this->sendError('No pending withdrawal request found.');
+        }
+
+        if ($withdraw->user_id !== $user->id) {
+            return $this->sendError('Unauthorized action.');
+        }
+
+        if ($withdraw->status !== 'pending') {
+            return $this->sendError('Only pending requests can be cancelled.');
+        }
+
         DB::beginTransaction();
         try {
-            $withdraw = WithdrawRequest::where('user_id', $user->id)
-                            ->where('status', 'pending')
-                            ->latest()
-                            ->first(); // Cancel any previous pending requests
-
-            if (!$withdraw) {
-                return $this->sendError('No pending withdrawal request found.');
-            }
-
-            if ($withdraw->user_id !== $user->id) {
-                return $this->sendError('Unauthorized action.');
-            }
-
-            if ($withdraw->status !== 'pending') {
-                return $this->sendError('Only pending requests can be cancelled.');
-            }
-
             $withdraw->status = 'cancelled';
             $withdraw->save();
 

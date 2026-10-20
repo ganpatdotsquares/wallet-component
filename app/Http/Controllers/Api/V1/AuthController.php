@@ -10,6 +10,7 @@ use App\Traits\ApiGlobalFunctions;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Mail;
 use App\Http\Requests\Api\UserRegisterRequest;
 use App\Http\Requests\Api\LoginRequest;
@@ -27,77 +28,78 @@ class AuthController extends Controller
 
     public function register(UserRegisterRequest $request)
     {
-        DB::beginTransaction();
-        // try {
+        try {
 
-        $referrer = null;
-        // Step 1: Check if referral code was entered and is valid
-        if (!empty($request->wallet_referred_by)) {
-            $referrer = User::where('status', 1)
-                ->whereNotNull('email_verified_at') // Corrected
-                ->where('wallet_referral_code', $request->wallet_referred_by)
-                ->first();
+            $referrer = null;
+            // Step 1: Check if referral code was entered and is valid
+            if (!empty($request->wallet_referred_by)) {
+                $referrer = User::where('status', 1)
+                    ->whereNotNull('email_verified_at') // Corrected
+                    ->where('wallet_referral_code', $request->wallet_referred_by)
+                    ->first();
 
-            if (!$referrer) {
-                return $this->sendError('Your applied referral code does not exist. Try another referral code.');
+                if (!$referrer) {
+                    return $this->sendError('Your applied referral code does not exist. Try another referral code.');
+                }
             }
-        }
 
-        $otp = (config('app.env') === 'production') ? rand(1000, 9999) : 1234;
+            DB::beginTransaction();
 
-        $referralCode = strtoupper(Str::random(6));
+            $otp = (config('app.env') === 'production') ? rand(1000, 9999) : 1234;
 
-        $user = new User([
-            'first_name'            => $request->first_name,
-            'last_name'             => $request->last_name,
-            'email'                 => $request->email,
-            'phone_number'          => $request->phone_number,
-            'dob'                   => $request->dob ?? null,
-            'gender'                => $request->gender ?? null,
-            'password'              => bcrypt($request->password),
-            'verification_otp'      => $otp,
-            'fcm_token'             => $request->fcm_token ?? null,
-            'stripe_token'          => Str::random(10) . time(),
-            'profile_step'          => 1,
-            'wallet_referral_code'  => $referralCode,
-            'wallet_referred_by'    => $request->wallet_referred_by ?? null,
-        ]);
+            $referralCode = strtoupper(Str::random(6));
 
-        if (!$user->save()) {
+            $user = new User([
+                'first_name'            => $request->first_name,
+                'last_name'             => $request->last_name,
+                'email'                 => $request->email,
+                'phone_number'          => $request->phone_number,
+                'dob'                   => $request->dob ?? null,
+                'gender'                => $request->gender ?? null,
+                'password'              => bcrypt($request->password),
+                'verification_otp'      => $otp,
+                'fcm_token'             => $request->fcm_token ?? null,
+                'stripe_token'          => Str::random(10) . time(),
+                'profile_step'          => 1,
+                'wallet_referral_code'  => $referralCode,
+                'wallet_referred_by'    => $request->wallet_referred_by ?? null,
+            ]);
+
+            if (!$user->save()) {
+                DB::rollBack();
+                return $this->sendError($this->messageDefault('profile_not_created'));
+            }
+
+            // Step 2: Create Wallet
+            Wallet::create([
+                'user_id' => $user->id,
+                'balance' => 0, // Start from zero
+            ]);
+
+            if ($referrer) {
+                $referralBonusAmount = config('GET.user_referral_bonus', 0); // fallback to 0 if not set
+
+                // Get or create the referrer's wallet
+                $referrerWallet = Wallet::firstOrCreate(['user_id' => $referrer->id]);
+
+                // Add bonus to existing balance
+                $referrerWallet->balance += $referralBonusAmount;
+                $referrerWallet->save();
+            }
+
+            // $replacement['USERNAME'] = $user->name;
+            // $replacement['OTP_CODE'] =  $otp;
+            // $maildata = ['to' => $user->email, 'template' => 'otp-mail-to-user', 'hooksVars' => $replacement];
+            // Mail::to($user->email)->send(new AppMail($maildata));
+            // $data = ['user_id' => $user->id];
+
+            DB::commit();
+
+            return $this->sendResponse($user, $this->messageDefault('profile_created'), 200);
+        } catch (\Throwable $th) {
             DB::rollBack();
-            return $this->sendError($this->messageDefault('profile_not_created'));
+            return $this->sendError($this->messageDefault('invalid_request'), '', 200);
         }
-
-        // Step 2: Create Wallet
-        Wallet::create([
-            'user_id' => $user->id,
-            'balance' => 0, // Start from zero
-        ]);
-
-        if ($referrer) {
-            $referralBonusAmount = config('GET.user_referral_bonus', 0); // fallback to 0 if not set
-
-            // Get or create the referrer's wallet
-            $referrerWallet = Wallet::firstOrCreate(['user_id' => $referrer->id]);
-
-            // Add bonus to existing balance
-            $referrerWallet->balance += $referralBonusAmount;
-            $referrerWallet->save();
-        }
-
-        // $replacement['USERNAME'] = $user->name;
-        // $replacement['OTP_CODE'] =  $otp;
-        // $maildata = ['to' => $user->email, 'template' => 'otp-mail-to-user', 'hooksVars' => $replacement];
-        // Mail::to($user->email)->send(new AppMail($maildata));
-        // $data = ['user_id' => $user->id];
-
-        DB::commit();
-
-        return $this->sendResponse($user, $this->messageDefault('profile_created'), 200);
-        // } catch (\Throwable $th) {
-        //     DB::rollBack();
-        //     return $this->sendError($this->messageDefault('invalid_request'), '', 200);
-        // }
     }
 
     public function login(LoginRequest $request)
@@ -257,23 +259,26 @@ class AuthController extends Controller
 
     public function resetPassword(ResetPasswordRequest $request)
     {
-        $user = User::where('id',  $request->user_id)->first();
-        if ($user) {
-            if ($user->real_password == $request->password) {
-                return $this->sendError($this->messageDefault('The new password you entered is the same as your old password. Enter a different password.'), '', '200');
-            }
+        try {
+            $user = User::where('id',  $request->user_id)->first();
+            if ($user) {
+                if (Hash::check($request->password, $user->password)) {
+                    return $this->sendError($this->messageDefault('The new password you entered is the same as your old password. Enter a different password.'), '', '200');
+                }
 
-            $user->update([
-                'real_password' => $request->password,
-                'password' => bcrypt($request->password)
-            ]);
-            //Logout from All Devices
-            if (auth('sanctum')->check()) {
-                auth('sanctum')->user()->tokens()->delete();
+                $user->update([
+                    'password' => bcrypt($request->password)
+                ]);
+                //Logout from All Devices
+                if (auth('sanctum')->check()) {
+                    auth('sanctum')->user()->tokens()->delete();
+                }
+                return $this->sendResponse('', $this->messageDefault('change_password_success'));
+            } else {
+                return $this->sendError($this->messageDefault('invalid_request'), '', '200');
             }
-            return $this->sendResponse('', $this->messageDefault('change_password_success'));
-        } else {
-            return $this->sendError($this->messageDefault('invalid_request'), '', '200');
+        } catch (\Throwable $th) {
+            return $this->sendError($this->messageDefault('invalid_request'), '', 200);
         }
     }
 

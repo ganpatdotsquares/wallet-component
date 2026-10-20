@@ -28,15 +28,22 @@ class UserRegisterRequest extends FormRequest
     public function rules(): array
     {
         return [
-            // 'first_name' => 'required|string|max:80',
-            // 'last_name' => 'required|string|max:80',
-            // 'email' => 'required|string|max:255|email|unique:users,email',
-            // 'password' => 'required|string|min:6',
-            // 'confirm_password' => 'required|same:password',
-            // 'phone_number' => 'nullable|string|max:15',
-            // 'dob' => 'nullable|date',
-            // 'gender' => 'nullable|string|in:male,female,other',
-            // 'fcm_token' => 'nullable|string|max:255',
+            'first_name' => 'required|string|max:80',
+            'last_name' => 'required|string|max:80',
+            'email' => 'required|string|max:255|email|unique:users,email',
+            'password' => 'required|string|min:6',
+            'confirm_password' => 'required|same:password',
+            'phone_number' => 'nullable|regex:/^[0-9]{7,15}$/',
+            'dob' => 'nullable|date',
+            'gender' => 'nullable|string|in:male,female,other',
+            'fcm_token' => 'nullable|string|max:255',
+        ];
+    }
+
+    public function messages(): array
+    {
+        return [
+            'phone_number.regex' => 'Phone number must contain only digits (7 to 15 digits).',
         ];
     }
 

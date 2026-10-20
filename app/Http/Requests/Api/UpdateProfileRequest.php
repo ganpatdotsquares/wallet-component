@@ -30,10 +30,17 @@ class UpdateProfileRequest extends FormRequest
         return [
             'first_name' => 'required|string|max:80',
             'last_name' => 'required|string|max:80',
-            'phone_number' => 'nullable|string|max:15',
+            'phone_number' => 'nullable|regex:/^[0-9]{7,15}$/',
             'dob' => 'nullable|date',
             'gender' => 'nullable|string|in:male,female,other',
             'profile_image' => 'nullable|image|mimes:jpg,jpeg,png,gif|max:2048',
+        ];
+    }
+
+    public function messages(): array
+    {
+        return [
+            'phone_number.regex' => 'Phone number must contain only digits (7 to 15 digits).',
         ];
     }
 
