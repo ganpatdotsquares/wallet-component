@@ -11,6 +11,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
 use App\Http\Requests\Api\UserRegisterRequest;
 use App\Http\Requests\Api\LoginRequest;
@@ -136,7 +137,11 @@ class AuthController extends Controller
                 $replacement['OTP_CODE'] =  $otp;
                 $maildata = ['to' => $user->email, 'template' => 'otp-mail-to-user', 'hooksVars' => $replacement];
 
-                Mail::to($user->email)->send(new AppMail($maildata));
+                try {
+                    Mail::to($user->email)->send(new AppMail($maildata));
+                } catch (\Throwable $mailException) {
+                    Log::error('Failed to send login OTP email to ' . $user->email . ': ' . $mailException->getMessage());
+                }
                 Auth::guard('api')->logout();
                 return $this->sendError('Your email is not verified', '', 200, $data);
             }
@@ -198,7 +203,11 @@ class AuthController extends Controller
                 $replacement['USERNAME'] = $user->name;
                 $replacement['OTP_CODE'] =  $otp;
                 $maildata = ['to' => $user->email, 'template' => 'resend-otp-to-user', 'hooksVars' => $replacement];
-                Mail::to($user->email)->send(new AppMail($maildata));
+                try {
+                    Mail::to($user->email)->send(new AppMail($maildata));
+                } catch (\Throwable $mailException) {
+                    Log::error('Failed to send resend-OTP email to ' . $user->email . ': ' . $mailException->getMessage());
+                }
 
                 $data = ['user_id' => $user->id];
                 return $this->sendResponse($data, $this->messageDefault('otp_resent'));
@@ -224,7 +233,11 @@ class AuthController extends Controller
                 $replacement['USERNAME'] = $user->name;
                 $replacement['OTP_CODE'] =  $otp;
                 $maildata = ['to' => $user->email, 'template' => 'forgot-password-email-to-user', 'hooksVars' => $replacement];
-                Mail::to($user->email)->send(new AppMail($maildata));
+                try {
+                    Mail::to($user->email)->send(new AppMail($maildata));
+                } catch (\Throwable $mailException) {
+                    Log::error('Failed to send forgot-password OTP email to ' . $user->email . ': ' . $mailException->getMessage());
+                }
                 return $this->sendResponse(['user_id' => $user->id], $this->messageDefault('forgot_password_otp_sent'));
             }
 

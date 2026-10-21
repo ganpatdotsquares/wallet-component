@@ -43,3 +43,5 @@ storage/logs/*
 !storage/logs/.gitignore
 
 composer
+
+worklog.md

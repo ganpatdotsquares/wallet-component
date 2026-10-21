@@ -32,43 +32,43 @@ class UserController extends Controller
         $user = auth('sanctum')->user();
         if (!$user) return $this->sendError('user_not_found', '', 401);
 
-        try {
-            // Update user attributes
-            $user->first_name = $request->first_name;
-            $user->last_name = $request->last_name;
-            $user->phone_number = $request->phone_number ?? null;
-            $user->dob = $request->dob ?? null;
-            $user->gender = $request->gender ?? null;
+        // try {
+        // Update user attributes
+        $user->first_name = $request->first_name;
+        $user->last_name = $request->last_name;
+        $user->phone_number = $request->phone_number ?? null;
+        $user->dob = $request->dob ?? null;
+        $user->gender = $request->gender ?? null;
 
-            // Handle profile image upload
-            if ($request->hasFile('profile_image')) {
-                // Define relative path inside storage/app/public
-                $relativePath = 'frontend/images/profile';
+        // Handle profile image upload
+        if ($request->hasFile('profile_image')) {
+            // Define relative path inside storage/app/public
+            $relativePath = 'frontend/images/profile';
 
-                // Ensure directory exists
-                if (!Storage::exists($relativePath)) {
-                    Storage::makeDirectory($relativePath, 0755, true); // recursive = true
-                }
-
-                // Delete old image if exists
-                if ($user->profile_image && Storage::disk('public')->exists($user->profile_image)) {
-                    Storage::disk('public')->delete($user->profile_image);
-                }
-
-                // Store new image
-                $file = $request->file('profile_image');
-                $photoName = time() . '.' . $file->getClientOriginalExtension();
-                $storedPath = $file->storeAs($relativePath, $photoName, 'public');
-
-                $user->profile_image = $storedPath;
+            // Ensure directory exists
+            if (!Storage::exists($relativePath)) {
+                Storage::makeDirectory($relativePath, 0755, true); // recursive = true
             }
 
-            $user->save();
+            // Delete old image if exists
+            if ($user->profile_image && Storage::disk('public')->exists($user->profile_image)) {
+                Storage::disk('public')->delete($user->profile_image);
+            }
 
-            return $this->sendResponse($user, 'Profile has been updated');
-        } catch (\Throwable $th) {
-            return $this->sendError('update_failed', $th->getMessage(), 500);
+            // Store new image
+            $file = $request->file('profile_image');
+            $photoName = time() . '.' . $file->getClientOriginalExtension();
+            $storedPath = $file->storeAs($relativePath, $photoName, 'public');
+
+            $user->profile_image = $storedPath;
         }
+
+        $user->save();
+
+        return $this->sendResponse($user, 'Profile has been updated');
+        // } catch (\Throwable $th) {
+        //     return $this->sendError('update_failed', $th->getMessage(), 500);
+        // }
     }
 
     public function changePassword(ChangePasswordRequest $request)

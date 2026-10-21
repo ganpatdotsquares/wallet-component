@@ -97,6 +97,28 @@ class AuthLoginTest extends TestCase
         Mail::assertSent(\App\Mail\AppMail::class);
     }
 
+    public function test_login_with_unverified_email_still_responds_when_mail_delivery_fails(): void
+    {
+        Mail::shouldReceive('to')->andReturnSelf();
+        Mail::shouldReceive('send')->andThrow(new \Symfony\Component\Mailer\Exception\TransportException(
+            'Expected response code "250/251/252" but got code "550", with message "550 mailbox unavailable".'
+        ));
+
+        User::factory()->create([
+            'email' => 'jane@example.com',
+            'password' => Hash::make('Secret123!'),
+            'status' => 1,
+            'email_verified_at' => null,
+        ]);
+
+        $response = $this->postJson('/api/auth/login', [
+            'email' => 'jane@example.com',
+            'password' => 'Secret123!',
+        ]);
+
+        $response->assertStatus(200)->assertJsonPath('status', false);
+    }
+
     public function test_login_requires_email_and_password(): void
     {
         $response = $this->postJson('/api/auth/login', []);
