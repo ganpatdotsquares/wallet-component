@@ -91,18 +91,30 @@ class WalletStripeController extends Controller
             $checkuser->update(['stripe_customer_id' => $customer->id]);
         }
 
-        $account = $stripe->accounts->create([
-            'type'          => 'express',
-            'email'         => $checkuser->email,
-            'business_type' => 'individual',
-            'capabilities'  => [
-                'transfers' => ['requested' => true],
-            ],
-            'business_profile' => [
-                'product_description' => 'Digital wallet system for sending and receiving money.',
-                'url'                 => 'https://wallet-system.co.org',
-            ],
-        ]);
+        // The Stripe SDK emits an E_USER_WARNING nudging integrators toward the
+        // Accounts v2 API on every Accounts v1 create() call; Laravel's default
+        // error handler turns that into a thrown ErrorException on web requests
+        // even though the request itself succeeds, so it's suppressed here.
+        set_error_handler(function (int $errno, string $errstr) {
+            return $errno === E_USER_WARNING && str_contains($errstr, 'Accounts v2');
+        });
+
+        try {
+            $account = $stripe->accounts->create([
+                'type'          => 'express',
+                'email'         => $checkuser->email,
+                'business_type' => 'individual',
+                'capabilities'  => [
+                    'transfers' => ['requested' => true],
+                ],
+                'business_profile' => [
+                    'product_description' => 'Digital wallet system for sending and receiving money.',
+                    'url'                 => 'https://wallet-system.co.org',
+                ],
+            ]);
+        } finally {
+            restore_error_handler();
+        }
 
         $checkuser->update([
             'stripe_account_id'  => $account->id,
