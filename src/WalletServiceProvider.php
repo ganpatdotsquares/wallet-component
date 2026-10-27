@@ -63,6 +63,14 @@ class WalletServiceProvider extends ServiceProvider
          */
         $this->registerAdminRoutes();
         $this->registerApiRoutes();
+        $this->registerStripeRedirectRoute();
+    }
+
+    protected function registerStripeRedirectRoute()
+    {
+        // This is a public Stripe onboarding callback, independent of the admin panel,
+        // so it must not be gated behind the `admins` table check used for admin routes.
+        $this->loadRoutesFrom(__DIR__ . '/routes/stripe.php');
     }
 
     protected function registerAdminRoutes()
