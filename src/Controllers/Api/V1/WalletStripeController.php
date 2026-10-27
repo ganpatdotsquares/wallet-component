@@ -92,7 +92,7 @@ class WalletStripeController extends Controller
         }
 
         $account = $stripe->accounts->create([
-            'type'          => 'custom',
+            'type'          => 'express',
             'email'         => $checkuser->email,
             'business_type' => 'individual',
             'capabilities'  => [
