@@ -1,0 +1,290 @@
+{
+  "info": {
+    "name": "Wallet Component API",
+    "_postman_id": "f3a8b2c4-1a2b-4c3d-9e4f-wallet0000001",
+    "description": "API collection for testing the admin/wallets Laravel package (auth token issuance + wallet endpoints).",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    { "key": "base_url", "value": "http://127.0.0.1:8001", "type": "string" },
+    { "key": "token", "value": "", "type": "string" },
+    { "key": "user_email", "value": "postman@example.com", "type": "string" },
+    { "key": "user_password", "value": "password123", "type": "string" },
+    { "key": "to_user_id", "value": "2", "type": "string" },
+    { "key": "stripe_secret_key", "value": "sk_test_xxx_put_your_key_here", "type": "string" },
+    { "key": "payment_intent_id", "value": "", "type": "string" }
+  ],
+  "auth": {
+    "type": "bearer",
+    "bearer": [{ "key": "token", "value": "{{token}}", "type": "string" }]
+  },
+  "item": [
+    {
+      "name": "Auth",
+      "item": [
+        {
+          "name": "Register",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Test User\",\n  \"email\": \"{{user_email}}\",\n  \"password\": \"{{user_password}}\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/register",
+              "host": ["{{base_url}}"],
+              "path": ["api", "register"]
+            },
+            "description": "Creates a new user and returns a Sanctum bearer token."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "    const json = pm.response.json();",
+                  "    if (json.token) {",
+                  "        pm.collectionVariables.set('token', json.token);",
+                  "    }",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "name": "Login",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"{{user_email}}\",\n  \"password\": \"{{user_password}}\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/login",
+              "host": ["{{base_url}}"],
+              "path": ["api", "login"]
+            },
+            "description": "Logs in an existing user and returns a Sanctum bearer token."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "    const json = pm.response.json();",
+                  "    if (json.token) {",
+                  "        pm.collectionVariables.set('token', json.token);",
+                  "    }",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "name": "Current User",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/user",
+              "host": ["{{base_url}}"],
+              "path": ["api", "user"]
+            },
+            "description": "Returns the authenticated user for the current bearer token."
+          }
+        }
+      ]
+    },
+    {
+      "name": "Wallet",
+      "item": [
+        {
+          "name": "Get Balance",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/v1/wallets/balance",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "wallets", "balance"]
+            }
+          }
+        },
+        {
+          "name": "Deposit Initiate",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"amount\": 10\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v1/wallets/deposit/initiate",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "wallets", "deposit", "initiate"]
+            },
+            "description": "Creates a Stripe PaymentIntent and returns client_secret. Requires a valid STRIPE_SECRET in .env."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "    const json = pm.response.json();",
+                  "    if (json.data && json.data.payment_intent_id) {",
+                  "        pm.collectionVariables.set('payment_intent_id', json.data.payment_intent_id);",
+                  "    }",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "name": "Confirm Test Card (Stripe direct)",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "auth": {
+              "type": "basic",
+              "basic": [
+                { "key": "username", "value": "{{stripe_secret_key}}", "type": "string" },
+                { "key": "password", "value": "", "type": "string" }
+              ]
+            },
+            "body": {
+              "mode": "urlencoded",
+              "urlencoded": [
+                { "key": "payment_method", "value": "pm_card_visa" },
+                { "key": "return_url", "value": "https://example.com/return" }
+              ]
+            },
+            "url": {
+              "raw": "https://api.stripe.com/v1/payment_intents/{{payment_intent_id}}/confirm",
+              "protocol": "https",
+              "host": ["api", "stripe", "com"],
+              "path": ["v1", "payment_intents", "{{payment_intent_id}}", "confirm"]
+            },
+            "description": "Calls Stripe directly (not your app) to confirm the PaymentIntent from 'Deposit Initiate' using Stripe's test Visa card token, so you can test 'Deposit Confirm' without a real checkout UI. Set the stripe_secret_key collection variable to your STRIPE_SECRET from .env first. Run 'Deposit Initiate' immediately before this so payment_intent_id is populated."
+          }
+        },
+        {
+          "name": "Deposit Confirm",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"payment_intent_id\": \"{{payment_intent_id}}\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v1/wallets/deposit/confirm",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "wallets", "deposit", "confirm"]
+            },
+            "description": "Only succeeds if the PaymentIntent status is 'succeeded'. Run 'Deposit Initiate' then 'Confirm Test Card (Stripe direct)' first."
+          }
+        },
+        {
+          "name": "Withdraw Request (Bank)",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"amount\": 5,\n  \"method\": \"bank\",\n  \"method_details\": {\n    \"account_number\": \"123456789012\",\n    \"ifsc\": \"ABCD0123456\",\n    \"account_holder_name\": \"Test User\",\n    \"bank_name\": \"Test Bank\"\n  }\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v1/wallets/withdraw-request",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "wallets", "withdraw-request"]
+            },
+            "description": "Requires sufficient wallet balance and a connected Stripe account (stripe_account_id)."
+          }
+        },
+        {
+          "name": "Withdraw Request (Stripe)",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"amount\": 5,\n  \"method\": \"stripe\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v1/wallets/withdraw-request",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "wallets", "withdraw-request"]
+            }
+          }
+        },
+        {
+          "name": "Withdraw Request Cancel",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/v1/wallets/withdraw-request-cancel",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "wallets", "withdraw-request-cancel"]
+            },
+            "description": "Cancels the authenticated user's latest pending withdrawal request."
+          }
+        },
+        {
+          "name": "Send Money",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"to_user_id\": {{to_user_id}},\n  \"amount\": 2\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v1/wallets/send",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "wallets", "send"]
+            },
+            "description": "Transfers money between two users' wallets. Set the to_user_id collection variable to a real user id."
+          }
+        },
+        {
+          "name": "Transaction History",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/v1/wallets/transactions",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "wallets", "transactions"]
+            }
+          }
+        },
+        {
+          "name": "Connect Stripe Account",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/v1/wallets/connect-stripe",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "wallets", "connect-stripe"]
+            },
+            "description": "Creates/returns a Stripe Connect onboarding link for the authenticated user."
+          }
+        }
+      ]
+    }
+  ]
+}
