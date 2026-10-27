@@ -7,11 +7,17 @@ use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\File;
+use Illuminate\Support\Facades\Blade;
+use admin\wallets\Support\SortableLink;
 
 class WalletServiceProvider extends ServiceProvider
 {
     public function boot()
     {
+        Blade::directive('sortablelink', function ($expression) {
+            return "<?php echo \\admin\\wallets\\Support\\SortableLink::render({$expression}); ?>";
+        });
+
         /**
          * Load views
          * Priority:

@@ -5,7 +5,7 @@ namespace admin\wallets\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Support\Facades\Config;
-use Kyslik\ColumnSortable\Sortable;
+use admin\wallets\Concerns\Sortable;
 use App\Models\User;
 
 class WalletTransaction extends Model

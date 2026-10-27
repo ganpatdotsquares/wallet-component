@@ -6,7 +6,6 @@
     "license": "MIT",
     "require": {
       "php": "^8.1",
-      "kyslik/column-sortable": "^6.3",
       "stripe/stripe-php": ">=13.0"
     },
     "autoload": {
