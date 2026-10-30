@@ -1,66 +1,170 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# Wallet Component
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+A reusable wallet and payment component built on Laravel 11. It provides a REST API for user authentication, profile management, wallet balance, deposits, withdrawals, peer-to-peer transfers and transaction history, with Stripe Connect used for payments and payouts. A small admin panel and CMS pages are included.
 
-## About Laravel
+Repository: https://github.com/ganpatdotsquares/wallet-component
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+## Features
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+- **Authentication:** register, login, OTP verification and resend, forgot/reset password, logout, account deletion (Laravel Sanctum tokens)
+- **User profile:** view and update profile, change password
+- **Wallet:** balance, deposit (initiate and confirm), withdraw request and cancel, send money, transaction history
+- **Stripe Connect:** onboarding link for users to receive payouts
+- **CMS pages:** fetched by slug
+- **Admin panel:** under `routes/admin.php`
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+## Requirements
 
-## Learning Laravel
+| Tool | Version |
+|------|---------|
+| PHP | 8.2 or higher |
+| Composer | 2.x |
+| MySQL / MariaDB | 5.7+ / 10.3+ (SQLite also works) |
+| Node.js and npm | 18+ (only needed for Vite assets) |
+| Stripe account | Test keys are enough for development |
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+Required PHP extensions: `mbstring`, `openssl`, `pdo`, `pdo_mysql`, `tokenizer`, `xml`, `ctype`, `json`, `fileinfo`, `curl`.
 
-You may also try the [Laravel Bootcamp](https://bootcamp.laravel.com), where you will be guided through building a modern Laravel application from scratch.
+## Installation
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+```bash
+# 1. Clone the repository
+git clone https://github.com/ganpatdotsquares/wallet-component.git
+cd wallet-component
 
-## Laravel Sponsors
+# 2. Install PHP dependencies
+composer install
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
+# 3. Create the environment file and application key
+cp .env.example .env
+php artisan key:generate
 
-### Premium Partners
+# 4. Configure .env (see "Environment configuration" below), then run migrations
+php artisan migrate
 
-- **[Vehikl](https://vehikl.com/)**
-- **[Tighten Co.](https://tighten.co)**
-- **[WebReinvent](https://webreinvent.com/)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel/)**
-- **[Cyber-Duck](https://cyber-duck.co.uk)**
-- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
-- **[Jump24](https://jump24.co.uk)**
-- **[Redberry](https://redberry.international/laravel/)**
-- **[Active Logic](https://activelogic.com)**
-- **[byte5](https://byte5.de)**
-- **[OP.GG](https://op.gg)**
+# 5. Expose uploaded files
+php artisan storage:link
 
-## Contributing
+# 6. (Optional) Install and build front-end assets
+npm install
+npm run build
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+# 7. Start the app
+php artisan serve
+```
 
-## Code of Conduct
+The API is then available at `http://127.0.0.1:8000/api/...`. On XAMPP you can instead point Apache at the `public/` directory.
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+## Environment configuration
 
-## Security Vulnerabilities
+Edit `.env` after copying it from `.env.example`.
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+### Application and database
+
+```env
+APP_NAME="Wallet Component"
+APP_URL=http://localhost:8000
+
+DB_CONNECTION=mysql
+DB_HOST=127.0.0.1
+DB_PORT=3306
+DB_DATABASE=wallet_component
+DB_USERNAME=root
+DB_PASSWORD=
+```
+
+Create the database first, for example `CREATE DATABASE wallet_component;`.
+
+### Stripe
+
+These values are read in [config/services.php](config/services.php) and are not in `.env.example`, so add them yourself:
+
+```env
+STRIPE_KEY=pk_test_xxx
+STRIPE_SECRET=sk_test_xxx
+STRIPE_CURRENCY=usd
+STRIPE_CURRENCY_SIGN=$
+STRIPE_WEBHOOK_SECRET=whsec_xxx
+```
+
+### Mail (used for OTP emails)
+
+```env
+MAIL_MAILER=smtp
+MAIL_HOST=smtp.example.com
+MAIL_PORT=587
+MAIL_USERNAME=your-username
+MAIL_PASSWORD=your-password
+MAIL_ENCRYPTION=tls
+MAIL_FROM_ADDRESS="no-reply@example.com"
+MAIL_FROM_NAME="${APP_NAME}"
+```
+
+With `MAIL_MAILER=log`, OTP emails are written to `storage/logs/laravel.log` instead of being sent. If mail delivery fails, the auth endpoints log the error and still return a normal response.
+
+> Never commit `.env` or real Stripe keys.
+
+## API overview
+
+All routes are in [routes/api.php](routes/api.php) and are served under `/api`.
+
+Every request passes through the `api.header` middleware, which converts camelCase request keys to snake_case. Routes marked "auth" also need an `Authorization` token returned by login (`api.authtoken` middleware).
+
+| Area | Method and path | Auth |
+|------|-----------------|------|
+| Auth | `POST auth/register`, `auth/login`, `auth/delete` | No |
+| Auth | `POST auth/otp-verification`, `auth/otp-verification-resend` | No |
+| Auth | `POST auth/forgot-password`, `auth/forgot-password-otp`, `auth/reset-password` | No |
+| User | `GET my-profile`, `GET logout`, `GET delete-account` | Yes |
+| User | `POST update-profile`, `POST change-password` | Yes |
+| CMS | `GET page/{slug}` | Yes |
+| Stripe | `GET connect-stripe` | Yes |
+| Wallet | `GET wallet/balance`, `GET wallet/transactions` | Yes |
+| Wallet | `POST wallet/deposit/initiate`, `wallet/deposit/confirm` | Yes |
+| Wallet | `POST wallet/withdraw-request`, `wallet/withdraw-request-cancel` | Yes |
+| Wallet | `POST wallet/send` | Yes |
+
+A ready-made Postman collection covering every endpoint is included: [WalletPayment.postman_collection.json](WalletPayment.postman_collection.json). Import it into Postman and set the base URL variable to your server.
+
+## Using the component in another Laravel project
+
+To add the wallet to an existing Laravel application, copy these parts across:
+
+1. **Code:** `app/Http/Controllers/Api/V1`, `app/Http/Middleware` (`CheckHeader`, `CheckAuthorization`), `app/Models` (`Wallet`, `WalletTransaction`, `WithdrawRequest`, `User`), `app/Traits`, and `app/helpers.php` (autoloaded via `composer.json`).
+2. **Routes:** the contents of `routes/api.php`.
+3. **Middleware aliases:** register them in `bootstrap/app.php`:
+   ```php
+   $middleware->alias([
+       'api.header'    => \App\Http\Middleware\CheckHeader::class,
+       'api.authtoken' => \App\Http\Middleware\CheckAuthorization::class,
+   ]);
+   ```
+4. **Database:** the wallet, wallet transaction, withdraw request and user-column migrations from `database/migrations`.
+5. **Config:** the `stripe` block in `config/services.php` and the Stripe `.env` values above.
+6. **Packages:** `composer require stripe/stripe-php laravel/sanctum`.
+
+The project has been manually verified on Laravel 11, 12 and 13.
+
+## Running tests
+
+The test suite uses an in-memory SQLite database and a fake Stripe HTTP client, so no real Stripe or mail credentials are needed.
+
+```bash
+php artisan test
+```
+
+## Project structure
+
+```
+app/Http/Controllers/Api/V1   API controllers (Auth, User, Wallet, Stripe, Base)
+app/Http/Middleware           CheckHeader, CheckAuthorization
+app/Models                    User, Wallet, WalletTransaction, WithdrawRequest, ...
+database/migrations           Schema, including wallet tables
+routes/api.php                API routes
+tests/Feature/Api             Feature tests for every endpoint
+tests/Support                 Fake Stripe client used by the tests
+```
 
 ## License
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+MIT
